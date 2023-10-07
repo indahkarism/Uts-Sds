@@ -1,7 +1,6 @@
 package database
 
 import (
-	"fmt"
 	"uts/models"
 
 	"gorm.io/driver/mysql"
@@ -11,6 +10,15 @@ import (
 var DB *gorm.DB
 
 func Connect() {
-	
-	DB.AutoMigrate(models.User{} )
+	var err error
+
+	dsn := `root@tcp(localhost:3306)/utssdsindahkarisma`
+
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
+
+	if err != nil {
+		panic(err)
+	}
+
+	DB.AutoMigrate(models.User{})
 }

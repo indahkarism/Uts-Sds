@@ -12,6 +12,14 @@ func InsertData(c *fiber.Ctx) error {
 
 	//Tulis Jawaban Code di Sini :))
 
+	user := new(models.User)
+
+	if err := c.BodyParser(user); err != nil {
+		return c.Status(503).SendString(err.Error())
+	}
+
+	database.DB.Create(&user)
+
 	return c.JSON(fiber.Map{
 		"Pesan": "Data telah berhasil di tambahkan",
 	})
@@ -19,11 +27,12 @@ func InsertData(c *fiber.Ctx) error {
 
 // Lengkapi Code Berikut untuk untuk Mengambil data untuk semua user - user
 func GetAllData(c *fiber.Ctx) error {
+	var users []models.User
 
-	
+	database.DB.Find(&users)
 
 	return c.JSON(fiber.Map{
-		"data": user,
+		"data": users,
 	})
 
 }
@@ -32,10 +41,17 @@ func GetAllData(c *fiber.Ctx) error {
 
 func GetUserByid(c *fiber.Ctx) error {
 
+	id := c.Params(`id_user`)
+	var user models.User
 
+	result := database.DB.Find(&user, id)
+
+	if result.RowsAffected == 0 {
+		return c.SendStatus(404)
+	}
 
 	return c.JSON(fiber.Map{
-		"data": user,
+		"data": &user,
 	})
 }
 
@@ -63,13 +79,14 @@ func Update(c *fiber.Ctx) error {
 	}
 	var users models.User
 	database.DB.Find(&users)
-	//data yang di ubah 
+	//data yang di ubah
 	//membuat variable user berdasarkan model user
 	var user models.User
 
 	update := models.User{
 		Nama:     data["nama"],
 		Email:    data["email"],
+		Username: data["username"],
 		Password: data["password"],
 	}
 	//mengambil database untuk di update
@@ -78,6 +95,5 @@ func Update(c *fiber.Ctx) error {
 
 	return c.JSON(fiber.Map{
 		"Pesan": "Data User telah di Update",
-	
 	})
 }
